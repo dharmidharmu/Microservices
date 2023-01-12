@@ -1,0 +1,104 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "tag_managedBy": {
+        "value": "l.bischard@gov.je"
+      },
+      "tag_department": {
+        "value": "coo\\mad"
+      },
+      "tag_service": {
+        "value": "online"
+      },
+      "tag_environment": {
+        "value": "dev"
+      },
+      "sku_name": {
+        "value": "Standard"
+      },
+      "tier": {
+        "value": "Standard"
+      },
+      "serviceBus_name": {
+        "value": "prod-euw-dharmi-sbn"
+      },
+      "serviceBus_policy": {
+        "value": [
+          ["Listen", "Send", "Manage"],
+          ["Listen", "Send"],
+          ["Send"],
+          ["Listen"]
+        ]
+      },
+      "sbq_profilenotification": {
+        "value": "profilenotification-sbq"
+      },
+      "sbq_profilenotification_policy": {
+        "value": [
+          ["Listen", "Send", "Manage"],
+          ["Listen", "Send"],
+          ["Send"],
+          ["Listen"]
+        ]
+      },
+      
+    "sbt_profiledetails": {
+      "value": "profiledetails-sbt"
+    },
+    "sbt_profiledetails_policy": {
+      "value": [
+        ["Listen", "Send", "Manage"],
+        ["Listen", "Send"],
+        ["Send"],
+        ["Listen"]
+      ]
+    },
+    "sbt_profiledetails_sub_usernotifications":{
+      "value": "profiledetails-usernotifications-sub"
+    },
+    "sbt_notificationdetails": {
+      "value": "notificationdetails-sbt"
+    },
+    "sbt_notificationdetails_policy": {
+      "value": [
+        ["Listen", "Send", "Manage"],
+        ["Listen", "Send"],
+        ["Send"],
+        ["Listen"]
+      ]
+    },
+    "sbt_notificationdetails_sub_usernotifications":{
+      "value": "notificationdetails-usernotifications-sub"
+    },
+    "sbt_servicecatalogue": {
+      "value": "servicecatalogue-sbt"
+    },
+    "sbt_servicecatalogue_policy": {
+      "value": [
+        ["Listen", "Send", "Manage"],
+        ["Listen", "Send"],
+        ["Send"],
+        ["Listen"]
+      ]
+    },
+    "sbt_servicecatalogue_sub_servicedeliveryhistory":{
+      "value": "servicecatalogue-servicedeliveryhistory-sub"
+    },
+    "sbt_servicedeliveryevents": {
+      "value": "servicedeliveryevents-sbt"
+    },
+    "sbt_servicedeliveryevents_policy": {
+      "value": [
+        ["Listen", "Send", "Manage"],
+        ["Listen", "Send"],
+        ["Send"],
+        ["Listen"]
+      ]
+    },
+    "sbt_servicedeliveryevents_sub_servicedeliveryhistory":{
+      "value": "servicedeliveryevents-servicedeliveryhistory-sub"
+    }
+    }
+  }
+  

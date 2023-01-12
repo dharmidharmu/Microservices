@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "tag_managedBy": {
+      "type": "string",
+      "defaultValue": "l.bischard@gov.je",
+      "metadata": {
+        "description": "Tag Value for Managed By"
+      }
+    },
+    "tag_department": {
+      "type": "string",
+      "defaultValue": "coo\\mad",
+      "metadata": {
+        "description": "Tag Value for Department"
+      }
+    },
+    "tag_service": {
+      "type": "string",
+      "defaultValue": "online",
+      "metadata": {
+        "description": "Tag Value for Service"
+      }
+    },
+    "tag_environment": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Tag Value for Environment"
+      }
+    },
+    "azureLoadTest_name": {
+      "type": "string",
+      "defaultValue": "tst-loadtest",
+      "metadata": {
+        "description": "Name of the Azure Load Testing"
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.LoadTestService/loadtests",
+      "apiVersion": "2022-04-15-preview",
+      "name": "[parameters('azureLoadTest_name')]",
+      "location": "northeurope",
+      "tags": {
+        "environment": "[parameters('tag_environment')]",
+        "service": "[parameters('tag_service')]",
+        "department": "[parameters('tag_department')]",
+        "managedBy": "[parameters('tag_managedBy')]"
+      },
+      "identity": {
+        "type": "None"
+      },
+      "properties": {}
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "tag_managedBy": {
+      "type": "string",
+      "defaultValue": "l.bischard@gov.je",
+      "metadata": {
+        "description": "Tag Value for Managed By"
+      }
+    },
+    "tag_department": {
+      "type": "string",
+      "defaultValue": "coo\\mad",
+      "metadata": {
+        "description": "Tag Value for Department"
+      }
+    },
+    "tag_service": {
+      "type": "string",
+      "defaultValue": "online",
+      "metadata": {
+        "description": "Tag Value for Service"
+      }
+    },
+    "tag_environment": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Tag Value for Environment"
+      }
+    }
+   
+    ,
+    "keyVault_name": {
+      "type": "string",
+      "defaultValue": "dev-euw-dharmi-backend-kv",
+      "metadata": {
+        "description": "Name of the Key Vault"
+      }
+    },
+     "SPN_ObjectID": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Object ID of SPN"
+      }
+    },
+   "AppConfigName": {
+      "type": "string",
+      "defaultValue": "d6b39561-75fa-4a7a-8177-c59e6411295c",
+      "metadata": {
+        "description": "App Configuration Name"
+      }
+    }
+  }
+  ,
+   "variables": {
+   
+  },
+  "resources": [
+  
+{
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2022-07-01",
+      "name": "[parameters('keyVault_name')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "environment": "[parameters('tag_environment')]",
+        "service": "[parameters('tag_service')]",
+        "department": "[parameters('tag_department')]",
+        "managedBy": "[parameters('tag_managedBy')]"
+      },
+      "properties": {
+        "sku": {
+          "family": "A",
+          "name": "Standard"
+        },
+        "accessPolicies": [],
+        "tenantId": "[subscription().tenantId]",
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": false,
+        "enableSoftDelete": true,
+        "softDeleteRetentionInDays": 90,
+        "enableRbacAuthorization": false,
+        "provisioningState": "Succeeded",
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+     {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "name": "[concat(parameters('keyVault_name'), '/add')]",
+      "apiVersion": "2019-09-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVault_name'))]"
+      ],
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[parameters('SPN_ObjectID')]",
+            "permissions": {
+              "keys": [],
+              "secrets": ["get", "list", "set"],
+              "certificates": []
+            }
+          },
+           {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[parameters('AppConfigName')]",
+            "permissions": {
+              "keys": [],
+              "secrets": ["get", "list"],
+              "certificates": []
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

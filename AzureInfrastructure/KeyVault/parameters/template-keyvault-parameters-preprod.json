@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "tag_managedBy": {
+          "value": "l.bischard@gov.je"
+      },
+      "tag_department": {
+          "value": "coo\\mad"
+      },
+      "tag_service": {
+          "value": "online"
+      },
+      "tag_environment": {
+          "value": "uat"
+      },
+      "keyVault_name": {
+          "value": "pp-euw-dharmi-frontend-kv"
+      },
+      "AppConfigName": {
+        "value": "393881a4-645e-4d0c-b978-6aa7115de6bf"
+      },
+      "SPN_ObjectID": {
+        "value": "b6f548ca-a02c-4eea-9391-a71ecde8b293"
+      }
+  }
+}

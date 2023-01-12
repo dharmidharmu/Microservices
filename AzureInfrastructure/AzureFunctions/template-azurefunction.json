@@ -1,0 +1,325 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "tag_managedBy": {
+      "type": "string",
+      "defaultValue": "l.bischard@gov.je",
+      "metadata": {
+        "description": "Tag Value for Managed By"
+      }
+    },
+    "tag_department": {
+      "type": "string",
+      "defaultValue": "coo\\mad",
+      "metadata": {
+        "description": "Tag Value for Department"
+      }
+    },
+    "tag_service": {
+      "type": "string",
+      "defaultValue": "online",
+      "metadata": {
+        "description": "Tag Value for Service"
+      }
+    },
+    "tag_environment": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Tag Value for Environment"
+      }
+    },
+    "AppService_name": {
+      "defaultValue": "dev-euw-dharmi-appservice",
+      "type": "String",
+      "metadata": {
+        "description": "Name of the App Service(FunctionApp)"
+      }
+    },
+
+    "ASP_sku_tier": {
+      "type": "string",
+      "defaultValue": "PremiumV2"
+    },
+    "ASP_sku_name": {
+      "type": "string",
+      "defaultValue": "P1v2"
+    },
+    "storageAccount_name": {
+      "type": "string",
+      "defaultValue": "deveuwonlinesa",
+      "metadata": {
+        "description": "Name of the Storage Account(FunctionApp)"
+      }
+    },
+    "sku_storageAccount": {
+      "type": "string",
+      "defaultValue": "Standard_ZRS",
+      "metadata": {
+        "description": "Storage Account Sku"
+      }
+    },
+    "logAnalyticsWorkspace_name": {
+      "type": "string",
+      "defaultValue": "dev-euw-dharmi-law",
+      "metadata": {
+        "description": "Name of the Log Analytics WorkSpace(Application Insights)"
+      }
+    },
+
+    "applicationInsights_name": {
+      "type": "string",
+      "defaultValue": "dev-euw-dharmi-ai",
+      "metadata": {
+        "description": "Name of the Application Insights(Function App)"
+      }
+    },
+    "functionApp_name": {
+      "type": "string",
+      "defaultValue": "dev-dharmi-functions",
+      "metadata": {
+        "description": "Name of the Function App"
+      }
+    },
+    "keyVault_name": {
+      "type": "string",
+      "defaultValue": "dev-euw-dharmi-back-kv",
+      "metadata": {
+        "description": "Name of the Key Vault"
+      }
+    }
+  },
+   "variables": {
+   
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('AppService_name')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "environment": "[parameters('tag_environment')]",
+        "service": "[parameters('tag_service')]",
+        "department": "[parameters('tag_department')]",
+        "managedBy": "[parameters('tag_managedBy')]"
+      },
+      "sku": {
+        "name": "[parameters('ASP_sku_name')]",
+        "tier": "[parameters('ASP_sku_tier')]"
+      },
+      "kind": "app",
+      "properties": {
+        "reserved": false
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-05-01",
+      "name": "[parameters('storageAccount_name')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "environment": "[parameters('tag_environment')]",
+        "service": "[parameters('tag_service')]",
+        "department": "[parameters('tag_department')]",
+        "managedBy": "[parameters('tag_managedBy')]"
+      },
+      "sku": {
+        "name": "[parameters('sku_storageAccount')]"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "dnsEndpointType": "Standard",
+        "defaultToOAuthAuthentication": false,
+        "publicNetworkAccess": "Enabled",
+        "allowCrossTenantReplication": true,
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": true,
+        "allowSharedKeyAccess": true,
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+          "requireInfrastructureEncryption": false,
+          "services": {
+            "file": {
+              "keyType": "Account",
+              "enabled": true
+            },
+            "blob": {
+              "keyType": "Account",
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        },
+        "accessTier": "Hot"
+      }
+    },
+    {
+      "type": "microsoft.operationalinsights/workspaces",
+      "apiVersion": "2021-12-01-preview",
+      "name": "[parameters('logAnalyticsWorkspace_name')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "environment": "[parameters('tag_environment')]",
+        "service": "[parameters('tag_service')]",
+        "department": "[parameters('tag_department')]",
+        "managedBy": "[parameters('tag_managedBy')]"
+      },
+      "properties": {
+        "sku": {
+          "name": "pergb2018"
+        },
+        "retentionInDays": 30,
+        "features": {
+          "enableLogAccessUsingOnlyResourcePermissions": true
+        },
+        "workspaceCapping": {
+          "dailyQuotaGb": -1
+        },
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      }
+    },
+    {
+      "type": "microsoft.insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[parameters('applicationInsights_name')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('microsoft.operationalinsights/workspaces', parameters('logAnalyticsWorkspace_name'))]"
+      ],
+      "tags": {
+        "environment": "[parameters('tag_environment')]",
+        "service": "[parameters('tag_service')]",
+        "department": "[parameters('tag_department')]",
+        "managedBy": "[parameters('tag_managedBy')]"
+      },
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "Flow_Type": "Redfield",
+        "Request_Source": "IbizaAIExtension",
+        "RetentionInDays": 90,
+        "WorkspaceResourceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('logAnalyticsWorkspace_name'))]",
+        "IngestionMode": "LogAnalytics",
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('functionApp_name')]",
+      "location": "[resourceGroup().location]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('AppService_name'))]",
+        "[resourceId('microsoft.operationalinsights/workspaces', parameters('logAnalyticsWorkspace_name'))]",
+        "[resourceId('microsoft.insights/components/', parameters('applicationInsights_name'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount_name'))]"
+      ],
+      "tags": {
+        "environment": "[parameters('tag_environment')]",
+        "service": "[parameters('tag_service')]",
+        "department": "[parameters('tag_department')]",
+        "managedBy": "[parameters('tag_managedBy')]"
+      },
+      "kind": "functionapp",
+      "properties": {
+        "enabled": true,
+        "hostNameSslStates": [
+          {
+            "name": "[concat(parameters('functionApp_name'), '.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          },
+          {
+            "name": "[concat(parameters('functionApp_name'), '.scm.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Repository"
+          }
+        ],
+
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppService_name'))]",
+        "siteConfig": {
+          "alwaysOn": true,
+          "appSettings": [
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(concat('microsoft.insights/components/', parameters('applicationInsights_name'))).InstrumentationKey]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccount_name'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount_name')),'2017-06-01').keys[0].value)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccount_name'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccount_name')),'2017-06-01').keys[0].value)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[toLower(parameters('functionApp_name'))]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~4"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "dotnet"
+            },
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "1"
+            },
+            {
+              "name": "WEBSITE_TIME_ZONE",
+              "value": "UTC"
+            }
+          ]
+        },
+        "scmSiteAlsoStopped": false,
+        "clientAffinityEnabled": false,
+        "clientCertEnabled": false,
+        "clientCertMode": "Required",
+        "hostNamesDisabled": false,
+        "containerSize": 1536,
+        "dailyMemoryTimeQuota": 0,
+        "httpsOnly": true,
+        "redundancyMode": "None",
+        "storageAccountRequired": false,
+        "keyVaultReferenceIdentity": "SystemAssigned"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "name": "[concat(parameters('keyVault_name'), '/add')]",
+      "apiVersion": "2019-09-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('functionApp_name'))]"
+      ],
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.Web/sites',parameters('functionApp_name')),'2019-08-01','full').identity.principalId]",
+            "permissions": {
+              "keys": [],
+              "secrets": ["get", "list"],
+              "certificates": []
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,491 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "tag_managedBy": {
+      "type": "string",
+      "defaultValue": "l.bischard@gov.je",
+      "metadata": {
+        "description": "Tag Value for Managed By"
+      }
+    },
+    "tag_department": {
+      "type": "string",
+      "defaultValue": "coo\\mad",
+      "metadata": {
+        "description": "Tag Value for Department"
+      }
+    },
+    "tag_service": {
+      "type": "string",
+      "defaultValue": "online",
+      "metadata": {
+        "description": "Tag Value for Service"
+      }
+    },
+    "tag_environment": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Tag Value for Environment"
+      }
+    },
+    "serviceBus_name": {
+      "defaultValue": "dev-euw-dharmi-sbn",
+      "type": "String",
+      "metadata": {
+        "description": "Service Bus Name"
+      }
+    },
+    "sku_name": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "metadata": {
+        "description": "Name of the Sku"
+      }
+    },
+    "tier": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "metadata": {
+        "description": "Tier for the Service Bus"
+      }
+    },
+    "serviceBus_policy": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Access Policy for Service Bus",
+        "metadata": {
+          "description": "Service Bus Policy"
+        }
+      }
+    },
+    "sbq_profilenotification": {
+      "type": "string",
+      "defaultValue": "dev-sbq-profilenotification-sbq",
+      "metadata": {
+        "description": "Queue Name - Notification Management"
+      }
+    },
+    "sbq_profilenotification_policy": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Access Policy for Service Bus Queue - Notification Management"
+      }
+    },
+    "sbt_profiledetails": {
+      "type": "string",
+      "defaultValue": "profiledetails-sbt",
+      "metadata": {
+        "description": "Topic Name - Profile Management"
+      }
+    },
+    "sbt_profiledetails_policy": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Access Policy for Service Bus Topic - Profile Details"
+      }
+    },
+    "sbt_profiledetails_sub_usernotifications": {
+      "type": "string",
+      "defaultValue": "profiledetails-usernotifications-sub",
+      "metadata": {
+        "description": "Subscription for topic Notification Details: profiledetails-usernotifications-sub"
+      }
+    },
+    "sbt_notificationdetails": {
+      "type": "string",
+      "defaultValue": "notificationdetails-sbt",
+      "metadata": {
+        "description": "Topic Name - Notification Details"
+      }
+    },
+    "sbt_notificationdetails_policy": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Access Policy for Service Bus Topic - Notification Details"
+      }
+    },
+    "sbt_notificationdetails_sub_usernotifications": {
+      "type": "string",
+      "defaultValue": "notificationdetails-usernotifications-sub",
+      "metadata": {
+        "description": "Subscription for topic Notification Details: notificationdetails-usernotifications-sub"
+      }
+    },
+     "sbt_servicecatalogue": {
+      "type": "string",
+      "defaultValue": "servicecatalogue-sbt",
+      "metadata": {
+        "description": "Topic Name - servicecatalogue"
+      }
+    },
+    "sbt_servicecatalogue_policy": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Access Policy for Service Bus Topic - servicecatalogue"
+      }
+    },
+    "sbt_servicecatalogue_sub_servicedeliveryhistory": {
+      "type": "string",
+      "defaultValue": "servicecatalogue-servicedeliveryhistory-sub",
+      "metadata": {
+        "description": "Subscription for topic servicecatalogue: servicecatalogue-servicedeliveryhistory-sub"
+      }
+    },
+    "sbt_servicedeliveryevents": {
+      "type": "string",
+      "defaultValue": "servicedeliveryevents-sbt",
+      "metadata": {
+        "description": "Topic Name - servicedeliveryevents"
+      }
+    },
+    "sbt_servicedeliveryevents_policy": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Access Policy for Service Bus Topic - servicedeliveryevents"
+      }
+    },
+    "sbt_servicedeliveryevents_sub_servicedeliveryhistory": {
+      "type": "string",
+      "defaultValue": "servicedeliveryevents-servicedeliveryhistory-sub",
+      "metadata": {
+        "description": "Subscription for topic servicecatalogue: servicedeliveryevents-servicedeliveryhistory-sub"
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.ServiceBus/namespaces",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[parameters('serviceBus_name')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "environment": "[parameters('tag_environment')]",
+        "service": "[parameters('tag_service')]",
+        "department": "[parameters('tag_department')]",
+        "managedBy": "[parameters('tag_managedBy')]"
+      },
+      "sku": {
+        "name": "[parameters('sku_name')]",
+        "tier": "[parameters('tier')]"
+      },
+      "properties": {
+        "minimumTlsVersion": "1.2",
+        "publicNetworkAccess": "Enabled",
+        "disableLocalAuth": false,
+        "zoneRedundant": false
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}', parameters('serviceBus_name'), concat('Policy-',copyIndex()))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "rights": "[parameters('serviceBus_policy')[copyIndex()]]"
+      },
+      "copy": {
+        "name": "servicebuspolicycopy",
+        "count": "[length(parameters('serviceBus_policy'))]"
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/queues",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}', parameters('serviceBus_name'), parameters('sbq_profilenotification'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "maxMessageSizeInKilobytes": 256,
+        "lockDuration": "PT30S",
+        "maxSizeInMegabytes": 1024,
+        "requiresDuplicateDetection": false,
+        "requiresSession": false,
+        "defaultMessageTimeToLive": "P14D",
+        "deadLetteringOnMessageExpiration": false,
+        "enableBatchedOperations": true,
+        "duplicateDetectionHistoryTimeWindow": "PT10M",
+        "maxDeliveryCount": 10,
+        "status": "Active",
+        "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+        "enablePartitioning": false,
+        "enableExpress": false
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/queues/authorizationrules",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('serviceBus_name'),parameters('sbq_profilenotification'), concat('Policy-',copyIndex()))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces/queues', parameters('serviceBus_name'), parameters('sbq_profilenotification'))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "rights": "[parameters('sbq_profilenotification_policy')[copyIndex()]]"
+      },
+      "copy": {
+        "name": "servicebusqueuepolicycopy",
+        "count": "[length(parameters('sbq_profilenotification_policy'))]"
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}', parameters('serviceBus_name'), parameters('sbt_profiledetails'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "maxMessageSizeInKilobytes": 256,
+        "defaultMessageTimeToLive": "P14D",
+        "maxSizeInMegabytes": 1024,
+        "requiresDuplicateDetection": true,
+        "duplicateDetectionHistoryTimeWindow": "PT10M",
+        "enableBatchedOperations": true,
+        "status": "Active",
+        "supportOrdering": true,
+        "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+        "enablePartitioning": false,
+        "enableExpress": false
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics/authorizationrules",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('serviceBus_name'),parameters('sbt_profiledetails'), concat('Policy-',copyIndex()))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('serviceBus_name'), parameters('sbt_profiledetails'))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "rights": "[parameters('sbt_profiledetails_policy')[copyIndex()]]"
+      },
+      "copy": {
+        "name": "servicebusqueuepolicycopy",
+        "count": "[length(parameters('sbt_profiledetails_policy'))]"
+      }
+    },
+
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('serviceBus_name'),parameters('sbt_profiledetails'),parameters('sbt_profiledetails_sub_usernotifications'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('serviceBus_name'), parameters('sbt_profiledetails'))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "isClientAffine": false,
+        "lockDuration": "PT30S",
+        "requiresSession": false,
+        "defaultMessageTimeToLive": "P14D",
+        "deadLetteringOnMessageExpiration": false,
+        "deadLetteringOnFilterEvaluationExceptions": true,
+        "maxDeliveryCount": 1000,
+        "status": "Active",
+        "enableBatchedOperations": true,
+        "autoDeleteOnIdle": "P10675198DT2H48M5.477S"
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}', parameters('serviceBus_name'), parameters('sbt_notificationdetails'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "maxMessageSizeInKilobytes": 256,
+        "defaultMessageTimeToLive": "P14D",
+        "maxSizeInMegabytes": 1024,
+        "requiresDuplicateDetection": true,
+        "duplicateDetectionHistoryTimeWindow": "PT10M",
+        "enableBatchedOperations": true,
+        "status": "Active",
+        "supportOrdering": true,
+        "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+        "enablePartitioning": false,
+        "enableExpress": false
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics/authorizationrules",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('serviceBus_name'),parameters('sbt_notificationdetails'), concat('Policy-',copyIndex()))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('serviceBus_name'), parameters('sbt_notificationdetails'))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "rights": "[parameters('sbt_notificationdetails_policy')[copyIndex()]]"
+      },
+      "copy": {
+        "name": "servicebusqueuepolicycopy",
+        "count": "[length(parameters('sbt_notificationdetails_policy'))]"
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('serviceBus_name'),parameters('sbt_notificationdetails'),parameters('sbt_notificationdetails_sub_usernotifications'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('serviceBus_name'), parameters('sbt_notificationdetails'))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "isClientAffine": false,
+        "lockDuration": "PT30S",
+        "requiresSession": false,
+        "defaultMessageTimeToLive": "P14D",
+        "deadLetteringOnMessageExpiration": false,
+        "deadLetteringOnFilterEvaluationExceptions": true,
+        "maxDeliveryCount": 1000,
+        "status": "Active",
+        "enableBatchedOperations": true,
+        "autoDeleteOnIdle": "P10675198DT2H48M5.477S"
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}', parameters('serviceBus_name'), parameters('sbt_servicecatalogue'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "maxMessageSizeInKilobytes": 256,
+        "defaultMessageTimeToLive": "P14D",
+        "maxSizeInMegabytes": 1024,
+        "requiresDuplicateDetection": true,
+        "duplicateDetectionHistoryTimeWindow": "PT10M",
+        "enableBatchedOperations": true,
+        "status": "Active",
+        "supportOrdering": true,
+        "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+        "enablePartitioning": false,
+        "enableExpress": false
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics/authorizationrules",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('serviceBus_name'),parameters('sbt_servicecatalogue'), concat('Policy-',copyIndex()))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('serviceBus_name'), parameters('sbt_servicecatalogue'))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "rights": "[parameters('sbt_servicecatalogue_policy')[copyIndex()]]"
+      },
+      "copy": {
+        "name": "servicebusqueuepolicycopy",
+        "count": "[length(parameters('sbt_servicecatalogue_policy'))]"
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('serviceBus_name'),parameters('sbt_servicecatalogue'),parameters('sbt_servicecatalogue_sub_servicedeliveryhistory'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('serviceBus_name'), parameters('sbt_servicecatalogue'))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "isClientAffine": false,
+        "lockDuration": "PT30S",
+        "requiresSession": false,
+        "defaultMessageTimeToLive": "P14D",
+        "deadLetteringOnMessageExpiration": false,
+        "deadLetteringOnFilterEvaluationExceptions": true,
+        "maxDeliveryCount": 1000,
+        "status": "Active",
+        "enableBatchedOperations": true,
+        "autoDeleteOnIdle": "P10675198DT2H48M5.477S"
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}', parameters('serviceBus_name'), parameters('sbt_servicedeliveryevents'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "maxMessageSizeInKilobytes": 256,
+        "defaultMessageTimeToLive": "P14D",
+        "maxSizeInMegabytes": 1024,
+        "requiresDuplicateDetection": true,
+        "duplicateDetectionHistoryTimeWindow": "PT10M",
+        "enableBatchedOperations": true,
+        "status": "Active",
+        "supportOrdering": true,
+        "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+        "enablePartitioning": false,
+        "enableExpress": false
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics/authorizationrules",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('serviceBus_name'),parameters('sbt_servicedeliveryevents'), concat('Policy-',copyIndex()))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('serviceBus_name'), parameters('sbt_servicedeliveryevents'))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "rights": "[parameters('sbt_servicedeliveryevents_policy')[copyIndex()]]"
+      },
+      "copy": {
+        "name": "servicebusqueuepolicycopy",
+        "count": "[length(parameters('sbt_servicedeliveryevents_policy'))]"
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions",
+      "apiVersion": "2022-01-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('serviceBus_name'),parameters('sbt_servicedeliveryevents'),parameters('sbt_servicedeliveryevents_sub_servicedeliveryhistory'))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces/topics', parameters('serviceBus_name'), parameters('sbt_servicedeliveryevents'))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBus_name'))]"
+      ],
+      "properties": {
+        "isClientAffine": false,
+        "lockDuration": "PT30S",
+        "requiresSession": false,
+        "defaultMessageTimeToLive": "P14D",
+        "deadLetteringOnMessageExpiration": false,
+        "deadLetteringOnFilterEvaluationExceptions": true,
+        "maxDeliveryCount": 1000,
+        "status": "Active",
+        "enableBatchedOperations": true,
+        "autoDeleteOnIdle": "P10675198DT2H48M5.477S"
+      }
+    }
+  ]
+}

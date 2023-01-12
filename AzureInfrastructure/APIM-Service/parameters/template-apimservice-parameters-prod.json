@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "apimName": {
+            "value": "prod-euw-online-apim"
+        },
+        "tier": {
+            "value": "Basic"
+        },
+        "capacity": {
+            "value": "1"
+        },
+        "adminEmail": {
+            "value": "v-dhsubraman@microsoft.com"
+        },
+        "organizationName": {
+            "value": "prod-dharmi-dharmi"
+        },
+        "logAnalyticsWorkspace_name": {
+            "value": "prod-euw-dharmi-law"
+        },
+        "applicationInsights_name": {
+            "value": "prod-euw-dharmi-ai"
+        },
+        "tag_managedBy": {
+            "value": "l.bischard@gov.je"
+        },
+        "tag_department": {
+            "value": "coo\\mad"
+        },
+        "tag_service": {
+            "value": "online"
+        },
+        "tag_environment": {
+            "value": "prd"
+        }
+    }
+}

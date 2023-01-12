@@ -1,0 +1,81 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "tag_managedBy": {
+      "value": "l.bischard@gov.je"
+    },
+    "tag_department": {
+      "value": "coo\\mad"
+    },
+    "tag_service": {
+      "value": "online"
+    },
+    "tag_environment": {
+      "value": "prd"
+    },
+    "AppService_name": {
+      "value": "prod-euw-dharmi-logicapp-appservice"
+    },
+    "ASP_sku_tier": {
+      "value": "WorkflowStandard"
+    },
+    "ASP_sku_name": {
+      "value": "WS2"
+    },
+    "storageAccount_name": {
+      "value": "prodeuwdharmilogicappsa"
+    },
+    "sku_storageAccount": {
+      "value": "Standard_ZRS"
+    },
+    "logAnalyticsWorkspace_name": {
+        "value": "prod-euw-dharmi-law"
+    },
+    "applicationInsights_name": {
+        "value": "prod-euw-dharmi-ai"
+    },
+    "logicApp_name": {
+      "value": "prod-euw-dharmi-logicApp"
+    },
+    "keyVault_name" : {
+      "value": "prod-euw-dharmi-backend-kv" 
+    },
+    "dataverse_connection_name": {
+     
+      "value": "dataverse"
+      
+    },
+     "dataverse_connection_display_name": {
+     
+      "value": "Prod-Dataverse"
+      
+    },
+    "dataverse_clientID": {
+    
+      "value": ""
+    },
+    "dataverse_tenantID": {
+      "value": "2b561511-7ddf-495c-8164-f56ae776c54a"
+    },
+    "dataverse_granttype": {
+      "value": "client_credentials"
+    },
+    "dataverse_clientSecret": {
+      "value": ""
+    },
+    "servicebus_connection_name": {
+     
+      "value": "servicebus"
+      
+    },
+     "servicebus_connection_display_name": {
+     
+      "value": "Prod-ServiceBus"
+      
+    },
+    "servicebus_connection_namespace": {
+      "value": "sb://prod-euw-dharmi-sbn.servicebus.windows.net/"
+    }
+  }
+}

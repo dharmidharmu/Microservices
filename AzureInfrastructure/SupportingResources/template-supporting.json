@@ -1,0 +1,70 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "tag_managedBy": {
+      "type": "string",
+      "defaultValue": "l.bischard@gov.je",
+      "metadata": {
+        "description": "Tag Value for Managed By"
+      }
+    },
+    "tag_department": {
+      "type": "string",
+      "defaultValue": "coo\\mad",
+      "metadata": {
+        "description": "Tag Value for Department"
+      }
+    },
+    "tag_service": {
+      "type": "string",
+      "defaultValue": "online",
+      "metadata": {
+        "description": "Tag Value for Service"
+      }
+    },
+    "tag_environment": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Tag Value for Environment"
+      }
+    },
+    "appConfig_name": {
+      "defaultValue": "tst-euw-online-appconfig",
+      "type": "String",
+      "metadata": {
+        "description": "Name of App Configuration Resource"
+      }
+    },
+    "appConfig_sku": {
+      "type": "string",
+      "defaultValue": "free",
+      "metadata": {
+        "description": "Sku for App Configuration Resource"
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.AppConfiguration/configurationStores",
+      "apiVersion": "2022-05-01",
+      "name": "[parameters('appConfig_name')]",
+      "location": "[resourceGroup().location]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "tags": {
+        "environment": "[parameters('tag_environment')]",
+        "service": "[parameters('tag_service')]",
+        "department": "[parameters('tag_department')]",
+        "managedBy": "[parameters('tag_managedBy')]"
+      },
+      "sku": {
+        "name": "[parameters('appConfig_sku')]"
+      }
+  
+    }
+  ]
+}

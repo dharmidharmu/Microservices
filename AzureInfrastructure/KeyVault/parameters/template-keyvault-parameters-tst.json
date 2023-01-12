@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "tag_managedBy": {
+          "value": "l.bischard@gov.je"
+      },
+      "tag_department": {
+          "value": "coo\\mad"
+      },
+      "tag_service": {
+          "value": "online"
+      },
+      "tag_environment": {
+          "value": "tst"
+      },
+      "keyVault_name": {
+          "value": "tst-euw-dharmi-frontend-kv"
+      },
+      "AppConfigName": {
+        "value": "d6b39561-75fa-4a7a-8177-c59e6411295c"
+      },
+      
+    "SPN_ObjectID": {
+      "value": "abc5c6cf-d229-4632-b009-7c6ff814d324"
+    }
+  }
+}

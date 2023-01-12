@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "tag_managedBy": {
+      "value": "l.bischard@gov.je"
+    },
+    "tag_department": {
+      "value": "coo\\mad"
+    },
+    "tag_service": {
+      "value": "online"
+    },
+    "tag_environment": {
+      "value": "dev"
+    },
+    "AppService_name": {
+      "value": "dev-euw-dharmi-appservice"
+    },
+    "ASP_sku_tier": {
+      "value": "PremiumV2"
+    },
+    "ASP_sku_name": {
+      "value": "P1v2"
+    },
+    "storageAccount_name": {
+      "value": "deveuwdharmidashsa"
+    },
+    "sku_storageAccount": {
+      "value": "Standard_ZRS"
+    },
+    "logAnalyticsWorkspace_name": {
+        "value": "dev-euw-dharmi-law"
+    },
+    "applicationInsights_name": {
+        "value": "dev-euw-dharmi-ai"
+    },
+    "functionApp_name": {
+      "value": "dev-euw-dharmi-dashboard-func"
+    },
+    "keyVault_name": {
+      "value": "dev-euw-dharmi-backend-kv"
+    }
+  }
+}

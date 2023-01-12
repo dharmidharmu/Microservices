@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "tag_managedBy": {
+          "value": "l.bischard@gov.je"
+      },
+      "tag_department": {
+          "value": "coo\\mad"
+      },
+      "tag_service": {
+          "value": "online"
+      },
+      "tag_environment": {
+          "value": "tst"
+      },
+      "appConfig_name": {
+          "value": "tst-euw-online-appconfig"
+      },
+      "appConfig_sku": {
+          "value": "free"
+      }
+  }
+}
